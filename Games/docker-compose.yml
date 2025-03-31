@@ -1,9 +1,0 @@
-version: '3.8'
-
-services:
-  games:
-    build: .
-    ports:
-      - "2027:2027"
-    environment:
-      - NODE_ENV=development 
