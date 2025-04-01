@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="style1.css">
+    <style>
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 2px;
+    margin: 50px auto;
+    width: 306px;
+    height: 306px;
+  }
+  
+  .cell {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    cursor: pointer;
+  }
+  
+  .cell:hover {
+    background-color: #ddd;
+  }
+
+Leaderboard -------------- Leaderboard
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,600,700&display=swap');
+
+*{
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	box-sizing: border-box;
+	font-family: 'Montserrat', sans-serif;
+}
+
+body{
+	background: #9ecae0;
+}
+
+.wrapper{
+	width: 100%;
+	height: 100%;
+}
+
+.lboard_section{
+	width: 500px;
+	height: 400px;
+	margin: 100px auto 0;
+	background: #f94f62;
+	padding: 25px 40px;
+	position: relative;
+	border-radius: 5px;
+}
+
+.lboard_section .lboard_tabs ul{
+	display: flex;
+}
+
+.lboard_section .lboard_tabs ul li{
+	margin-right: 50px;
+	font-size: 18px;
+	font-weight: 600;
+	color: #3a3d51;
+	cursor: pointer;
+}
+
+.lboard_section .lboard_tabs ul li:hover,
+.lboard_section .lboard_tabs ul li.active{
+	color: #fff;
+}
+
+.lboard_wrap{
+	position: absolute;
+	top: 70px;
+	left: 40px;
+	background: #ffd300;
+	width: 100%;
+	height: 100%;
+	border-radius: 5px;
+}
+
+.lboard_wrap .lboard_item{
+	padding: 25px;
+}
+
+.lboard_wrap .lboard_mem{
+	display: flex;
+	align-items: center;
+	padding: 15px 0;
+	border-bottom: 1px solid #ffe773;
+}
+
+.lboard_wrap .lboard_mem:first-child{
+	padding-top: 0;
+}
+
+.lboard_wrap .lboard_mem:last-child{
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+
+.lboard_wrap .lboard_mem .img{
+	width: 50px;
+}
+
+.lboard_wrap .lboard_mem img{
+	display: block;
+	width: 100%;
+}
+
+.lboard_wrap .lboard_mem .name_bar{
+	margin: 0 20px;
+	width: calc(100% - 150px);
+}
+
+.lboard_wrap .lboard_mem .name_bar p{
+	color: #3a3d51;
+}
+
+.lboard_wrap .lboard_mem .name_bar p span{
+	margin-right: 5px;
+}
+
+.lboard_wrap .lboard_mem .points{
+	width: 100px;
+	color: #3a3d51;
+}
+
+.lboard_wrap .lboard_mem .name_bar .bar_wrap{
+	width: 100%;
+	height: 5px;
+	background: #d5b000;
+	margin-top: 5px;
+	border-radius: 5px;
+	position: relative;
+	overflow: hidden;
+}
+
+.lboard_wrap .lboard_mem .name_bar .bar_wrap .inner_bar{
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 5px;
+	background: #fff;
+	border-radius: 5px;
+	border-top-right-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+
+/* Go back Boutton Styles */
+
+body {
+	background-color: #9ecae0; /* Change the background color of the body */
+	color: #333; /* Change the text color */
+	font-family: Arial, sans-serif; /* Change the font */
+}
+
+button {
+	background-color: #9ecae0; /* Change the background color of the button */
+	color: #3a3d51; /* Change the text color of the button */
+	padding: 10px 20px; /* Add padding to the button */
+	font-size: 16px; /* Change the font size of the button text */
+	border: none; /* Remove the border */
+	border-radius: 5px; /* Add border radius */
+	cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+button:hover {
+	background-color:  #9ecae0; /* Darken the background color of the button on hover */
+}
+    </style>
+    <title>Tic Tac Toe</title>
+</head>
+<body>
+    <h1>Tic Tac Toe</h1>
+    <div class="game-container">
+        <div id="board" class="board">
+            <!-- Tic Tac Toe board -->
+            <div class="container">
+                <div id="board" class="board">
+                    <div class="cell" data-index="0"></div>
+                    <div class="cell" data-index="1"></div>
+                    <div class="cell" data-index="2"></div>
+                    <div class="cell" data-index="3"></div>
+                    <div class="cell" data-index="4"></div>
+                    <div class="cell" data-index="5"></div>
+                    <div class="cell" data-index="6"></div>
+                    <div class="cell" data-index="7"></div>
+                    <div class="cell" data-index="8"></div>
+                </div>
+            </div>
+        </div>
+        <div class="scoreboard">
+            <!-- Scoreboard -->
+            <h2>Scoreboard</h2>
+            <p>Player Wins: <span id="playerScore">0</span></p> <!-- Player's score -->
+            <p>Bot Wins: <span id="botScore">0</span></p> <!-- Bot's score -->
+            <p>Cat Wins: <span id="catScore">0</span></p> <!-- Cat's score -->
+        </div>
+    </div>
+    <!-- Go back Button -->
+    <button onclick="goBack()">Go Back</button>
+
+    <script>
+        const board = document.getElementById('board');
+        const cells = document.querySelectorAll('.cell');
+        const playerScoreDisplay = document.getElementById('playerScore');
+        const botScoreDisplay = document.getElementById('botScore');
+        const catScoreDisplay = document.getElementById('catScore');
+
+        let currentPlayer = 'O'; // Player is 'O', bot is 'X'
+        let playerScore = 0;
+        let botScore = 0;
+        let catScore = 0;
+        let winner = null;
+        let botDifficulty = 'medium'; // Default difficulty
+        const botPersonalities = {
+          easy: { // Easy bot personality
+            name: 'Easy Bot',
+            moveDelay: 300 // Delay between bot moves in milliseconds
+          },
+          medium: { // Medium bot personality (default)
+            name: 'Medium Bot',
+            moveDelay: 200
+          },
+          hard: { // Hard bot personality
+            name: 'Hard Bot',
+            moveDelay: 100
+          }
+        };
+        const winningCombos = [
+          [0, 1, 2],
+          [3, 4, 5],
+          [6, 7, 8],
+          [0, 3, 6],
+          [1, 4, 7],
+          [2, 5, 8],
+          [0, 4, 8],
+          [2, 4, 6]
+        ];
+
+        cells.forEach(cell => {
+          cell.addEventListener('click', () => {
+            if (!cell.textContent && !winner && currentPlayer === 'O') {
+              cell.textContent = currentPlayer;
+              checkWin();
+              currentPlayer = 'X'; // Switch to bot's turn after player's move
+              botMove();
+            }
+          });
+        });
+
+        function botMove() {
+          setTimeout(() => {
+            const availableCells = [...cells].filter(cell => !cell.textContent);
+            if (availableCells.length > 0) {
+              const randomIndex = Math.floor(Math.random() * availableCells.length);
+              const botCell = availableCells[randomIndex];
+              botCell.textContent = 'X';
+              checkWin();
+              currentPlayer = 'O'; // Switch back to player's turn after bot's move
+            }
+          }, botPersonalities[botDifficulty].moveDelay);
+        }
+
+        function checkWin() {
+          for (let combo of winningCombos) {
+            const [a, b, c] = combo;
+            if (
+              cells[a].textContent &&
+              cells[a].textContent === cells[b].textContent &&
+              cells[a].textContent === cells[c].textContent
+            ) {
+              cells[a].style.backgroundColor = 'lightgreen';
+              cells[b].style.backgroundColor = 'lightgreen';
+              cells[c].style.backgroundColor = 'lightgreen';
+              winner = cells[a].textContent;
+              if (winner === 'O') {
+                playerScore++;
+                playerScoreDisplay.textContent = playerScore;
+              } else if (winner === 'X') {
+                botScore++;
+                botScoreDisplay.textContent = botScore;
+              }
+              setTimeout(() => {
+                alert(`Player ${winner === 'O' ? 'O (Player)' : 'X (Bot)'} wins!`);
+                resetGame();
+              }, 1);
+              return;
+            }
+          }
+          if ([...cells].every(cell => cell.textContent)) {
+            catScore++;
+            catScoreDisplay.textContent = catScore;
+            setTimeout(() => {
+              alert("It's a draw!");
+              resetGame();
+            }, 100);
+          }
+        }
+
+        function resetGame() {
+          cells.forEach(cell => {
+            cell.textContent = '';
+            cell.style.backgroundColor = '#eee';
+          });
+          currentPlayer = 'O';
+          winner = null;
+        }
+
+        // Function to set the bot difficulty
+        function setBotDifficulty(difficulty) {
+          botDifficulty = difficulty;
+          alert(`Bot difficulty set to ${botPersonalities[botDifficulty].name}`);
+        }
+
+        function goBack() {
+          window.location.href = "other.html"; // Replace "other.html" with the destination you want to go back to
+        }
+    </script>
+</body>
+</html>

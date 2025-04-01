@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quadratic Equation Solver</title>
+  <style>
+    #equation-container {
+      margin-top: 20px;
+      font-family: Arial, sans-serif;
+    }
+
+    #equation {
+      margin-bottom: 10px;
+    }
+
+    #equation input {
+      width: 100px;
+      margin-right: 10px;
+    }
+
+    #result {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 8px 16px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4caf50; /* Change the background color of the button */
+      color: white; /* Change the text color of the button */
+      border: none; /* Remove the border */
+      border-radius: 5px; /* Add border radius */
+    }
+
+    button:hover {
+      background-color: #45a049; /* Darken the background color of the button on hover */
+    }
+    
+    /* Go back Button Styles */
+body {
+    background-color: #fff; /* Change the background color of the body */
+    color: #333; /* Change the text color */
+    font-family: Arial, sans-serif; /* Change the font */
+    position: relative; /* Set position to relative for the body */
+    height: 100vh; /* Set body height to full viewport height */
+    margin: 0; /* Remove default margin */
+    display: flex; /* Use flexbox for centering */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+}
+
+button {
+    background-color: #0056b3; /* Change the background color of the button */
+    color: #fff; /* Change the text color of the button to white */
+    padding: 10px 20px; /* Add padding to the button */
+    font-size: 16px; /* Change the font size of the button text */
+    border: none; /* Remove the border */
+    border-radius: 5px; /* Add border radius */
+    cursor: pointer; /* Change cursor to pointer on hover */
+    margin-right: 10px; /* Add margin between buttons */
+}
+
+button:hover {
+    background-color: #007bff; /* Darken the background color of the button on hover */
+}
+
+  </style>
+</head>
+<body>
+  <div id="equation-container">
+    <div id="equation">
+      <!-- Equation will be dynamically generated here -->
+    </div>
+    <div id="root-inputs">
+      <!-- Input fields for roots will be dynamically generated here -->
+    </div>
+    <div id="result"></div>
+    <button id="show-answer-btn">Show Answer</button>
+    <button id="new-equation-btn">Generate New Equation</button>
+    <button id="check-roots-btn">Check Roots</button>
+
+    <!-- New button added here -->
+    <button onclick="goBack()">Go Back</button>
+  </div>
+
+  <script>
+    const equationContainer = document.getElementById("equation");
+    const rootInputsContainer = document.getElementById("root-inputs");
+    const resultDiv = document.getElementById("result");
+    const showAnswerBtn = document.getElementById("show-answer-btn");
+    const newEquationBtn = document.getElementById("new-equation-btn");
+    const checkRootsBtn = document.getElementById("check-roots-btn");
+    let lastEquation;
+
+    // Error analysis object to track common errors
+    const errorAnalysis = {
+      wrongOrder: 0,
+      missingRoots: 0,
+      invalidInput: 0
+    };
+
+    // Math library integration for solving equations
+    function solveEquation(a, b, c) {
+      const discriminant = b ** 2 - 4 * a * c;
+      if (discriminant > 0) {
+        const root1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+        const root2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+        return [root1.toFixed(2), root2.toFixed(2)];
+      } else if (discriminant === 0) {
+        const root = -b / (2 * a);
+        return [root.toFixed(2)];
+      } else {
+        return ["No real roots"]; // Indicate that there are no real roots
+      }
+    }
+
+    // Random equation generator with different levels of difficulty
+    function generateRandomEquation(difficulty) {
+      let a, b, c;
+      do {
+        if (difficulty === "easy") {
+          a = Math.floor(Math.random() * 5) + 1; // Coefficient of x^2 (1-5)
+          b = Math.floor(Math.random() * 10) + 1; // Coefficient of x (1-10)
+          c = Math.floor(Math.random() * 10) + 1; // Constant term (1-10)
+        } else if (difficulty === "medium") {
+          a = Math.floor(Math.random() * 10) + 1; // Coefficient of x^2 (1-10)
+          b = Math.floor(Math.random() * 20) + 1; // Coefficient of x (1-20)
+          c = Math.floor(Math.random() * 20) + 1; // Constant term (1-20)
+        } else if (difficulty === "hard") {
+          a = Math.floor(Math.random() * 20) + 1; // Coefficient of x^2 (1-20)
+          b = Math.floor(Math.random() * 30) + 1; // Coefficient of x (1-30)
+          c = Math.floor(Math.random() * 30) + 1; // Constant term (1-30)
+        }
+        // Ensure the discriminant is non-negative
+      } while (b * b - 4 * a * c < 0); // Ensure the equation has real roots
+      const equation = `${a}x^2 + ${b}x + ${c}`;
+      equationContainer.innerHTML = `<p>Solve the equation: ${equation} = 0</p>`;
+      lastEquation = { a, b, c };
+      // Clear previous input fields
+      rootInputsContainer.innerHTML = "";
+      // Create input fields for roots
+      for (let i = 0; i < 2; i++) {
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = `Root ${i + 1}`;
+        rootInputsContainer.appendChild(input);
+      }
+    }
+
+    // Error correction for common mistakes
+    function correctErrors(inputs) {
+      const [input1, input2] = inputs;
+      // Swap roots if they are entered in the wrong order
+      if (input1 && input2 && parseFloat(input1.value) > parseFloat(input2.value)) {
+        const temp = input1.value;
+        input1.value = input2.value;
+        input2.value = temp;
+        errorAnalysis.wrongOrder++;
+      }
+      // Fill missing root inputs with zeros
+      if (!input1 && !input2) {
+        const input1 = document.createElement("input");
+        input1.type = "text";
+        input1.value = "0";
+        rootInputsContainer.appendChild(input1);
+        const input2 = document.createElement("input");
+        input2.type = "text";
+        input2.value = "0";
+        rootInputsContainer.appendChild(input2);
+        errorAnalysis.missingRoots++;
+      } else if (!input1) {
+        const input1 = document.createElement("input");
+        input1.type = "text";
+        input1.value = "0";
+        rootInputsContainer.prepend(input1);
+        errorAnalysis.missingRoots++;
+      } else if (!input2) {
+        const input2 = document.createElement("input");
+        input2.type = "text";
+        input2.value = "0";
+        rootInputsContainer.appendChild(input2);
+        errorAnalysis.missingRoots++;
+      }
+      // Check for invalid input values
+      inputs.forEach(input => {
+        if (isNaN(parseFloat(input.value)) || !isFinite(input.value)) {
+          input.value = "0";
+          errorAnalysis.invalidInput++;
+        }
+      });
+    }
+
+    // Error analysis feedback for users
+    function provideErrorAnalysis() {
+      let message = "Common Errors Detected:\n";
+      if (errorAnalysis.wrongOrder > 0) {
+        message += `Roots entered in the wrong order: ${errorAnalysis.wrongOrder} times\n`;
+      }
+      if (errorAnalysis.missingRoots > 0) {
+        message += `Missing roots filled with zeros: ${errorAnalysis.missingRoots} times\n`;
+      }
+      if (errorAnalysis.invalidInput > 0) {
+        message += `Invalid input values corrected to zeros: ${errorAnalysis.invalidInput} times\n`;
+      }
+      alert(message);
+    }
+
+    // Check if roots are correct
+    function checkRoots() {
+      const inputs = rootInputsContainer.querySelectorAll("input");
+      const roots = Array.from(inputs).map(input => parseFloat(input.value));
+      correctErrors(inputs);
+      const [root1, root2] = roots;
+      if (checkRootsValidity(roots, lastEquation.a, lastEquation.b, lastEquation.c)) {
+        resultDiv.textContent = "Correct!";
+      } else {
+        resultDiv.textContent = "Incorrect. Try again.";
+      }
+    }
+
+    function checkRootsValidity(roots, a, b, c) {
+      const [root1, root2] = roots;
+      const actualRoots = solveEquation(a, b, c);
+      if (roots.length === actualRoots.length) {
+        if (roots.length === 1) {
+          return Math.abs(root1 - actualRoots[0]) < 0.01;
+        } else if (roots.length === 2) {
+          return (Math.abs(root1 - actualRoots[0]) < 0.01 && Math.abs(root2 - actualRoots[1]) < 0.01) ||
+                 (Math.abs(root1 - actualRoots[1]) < 0.01 && Math.abs(root2 - actualRoots[0]) < 0.01);
+        }
+      }
+      return false;
+    }
+
+    // Show step-by-step solutions
+    function showStepByStepSolution() {
+      const [a, b, c] = [lastEquation.a, lastEquation.b, lastEquation.c];
+      const discriminant = b ** 2 - 4 * a * c;
+      let solution = "";
+      if (discriminant > 0) {
+        const root1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+        const root2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+        solution = `Step-by-Step Solution:\n
+          1. Calculate Discriminant (b^2 - 4ac):\n
+          Discriminant = ${b}^2 - 4 * ${a} * ${c} = ${discriminant}\n
+          2. Calculate Roots using Quadratic Formula:\n
+          Root 1 = (-${b} + sqrt(${discriminant})) / (2 * ${a}) = ${root1.toFixed(2)}\n
+          Root 2 = (-${b} - sqrt(${discriminant})) / (2 * ${a}) = ${root2.toFixed(2)}\n`;
+      } else if (discriminant === 0) {
+        const root = -b / (2 * a);
+        solution = `Step-by-Step Solution:\n
+          1. Calculate Discriminant (b^2 - 4ac):\n
+          Discriminant = ${b}^2 - 4 * ${a} * ${c} = ${discriminant}\n
+          2. Calculate Root using Quadratic Formula:\n
+          Root = -${b} / (2 * ${a}) = ${root.toFixed(2)}\n`;
+      } else {
+        solution = "Step-by-Step Solution:\nNo real roots exist (Discriminant < 0)";
+      }
+      alert(solution);
+    }
+
+    // Generate and display a new equation
+    function generateAndDisplayNewEquation() {
+      const difficulty = getDifficulty();
+      generateRandomEquation(difficulty);
+      resultDiv.textContent = "";
+    }
+
+    // Get selected difficulty level
+    function getDifficulty() {
+      const difficultyRadios = document.getElementsByName("difficulty");
+      let difficulty = "medium"; // Default difficulty
+      difficultyRadios.forEach(radio => {
+        if (radio.checked) {
+          difficulty = radio.value;
+        }
+      });
+      return difficulty;
+    }
+
+    showAnswerBtn.addEventListener("click", showStepByStepSolution);
+    newEquationBtn.addEventListener("click", generateAndDisplayNewEquation);
+    checkRootsBtn.addEventListener("click", checkRoots);
+
+    // Initial setup
+    generateAndDisplayNewEquation();
+    
+    // Script for the new button
+    function goBack() {
+      window.location.href = "other.html"
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
+    <title>Games</title>
+</head>
+<body>
+ <div class="wrapper">
+    <nav class="nav">
+        <div class="nav-logo">
+            <p>Games</p>
+        </div>
+        <div class="nav-menu" id="navMenu">
+            <ul>
+                <li><a href="Solar-System.html" class="link">Solar System</a></li>
+                <li><a href="time.html" class="link">Stopwatch</a></li>
+                <li><a href="game.html" class="link">Tic Tac Toe</a></li>
+                <li><a href="2.html" class="link">Stress Game</a></li>
+                <li><a href="1.html" class="link">Clicker Game</a></li>
+                <li><a href="password.html" class="link">Passowrd</a></li>
+                <li class="dropdown">
+                    <button onclick="toggleDropdown()" class="dropbtn">Other</button>
+                    <div id="myDropdown" class="dropdown-content">
+                        <a href="example.html"> </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="nav-menu-btn">
+            <i class="bx bx-menu" onclick="myMenuFunction()"></i>
+        </div>
+    </nav>
+
+</div>   
+
+<script>
+   function myMenuFunction() {
+    var i = document.getElementById("navMenu");
+
+    if(i.className === "nav-menu") {
+        i.className += " responsive";
+    } else {
+        i.className = "nav-menu";
+    }
+   }
+
+   function toggleDropdown() {
+    var dropdown = document.getElementById("myDropdown");
+    if (dropdown.style.display === "none" || dropdown.style.display === "") {
+      dropdown.style.display = "block";
+    } else {
+      dropdown.style.display = "none";
+    }
+  }
+</script>
+
+</body>
+</html>

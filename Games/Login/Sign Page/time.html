@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <style>
+        /* CSS styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+
+        .stopwatch {
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .stopwatch-name {
+            margin-bottom: 10px;
+        }
+
+        #display {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        button {
+            font-size: 1.5em;
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            background-color: #007aff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #startStop {
+            background-color: #007aff;
+        }
+
+        #startStop:hover {
+            background-color: #0056b3;
+        }
+
+        #startStop:active {
+            background-color: #00417a;
+        }
+
+        #reset {
+            background-color: #ff3b30;
+        }
+
+        #reset:hover {
+            background-color: #d93025;
+        }
+
+        #reset:active {
+            background-color: #b2221b;
+        }
+
+        #lap {
+            background-color: #00cc00;
+        }
+
+        #lap:hover {
+            background-color: #00a300;
+        }
+
+        #lap:active {
+            background-color: #008000;
+        }
+
+        .stopwatch-controls button:last-child {
+            margin-right: 0;
+        }
+
+        #lapTimes {
+            text-align: left;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-left: 20px;
+        }
+
+        #lapTimes li {
+            margin-bottom: 5px;
+        }
+
+        #totalTime {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        /* Additional styles for button container */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="stopwatches"></div>
+
+    <!-- Button container for the control buttons -->
+    <div class="button-container">
+        <button onclick="createStopwatch()">Create Stopwatch</button>
+        <button onclick="deleteStopwatch()">Delete Stopwatch</button>
+        <button onclick="exportLapTimes()">Export Lap Times</button>
+    </div>
+
+    <script>
+        // Your JavaScript code goes here...
+
+        class Stopwatch {
+            constructor(name) {
+                this.name = name;
+                this.timer = null;
+                this.isRunning = false;
+                this.milliseconds = 0;
+                this.seconds = 0;
+                this.minutes = 0;
+                this.hours = 0;
+                this.container = null;
+                this.lapTimes = [];
+            }
+
+            create() {
+                this.container = document.createElement('div');
+                this.container.className = 'stopwatch';
+
+                const nameDisplay = document.createElement('div');
+                nameDisplay.textContent = this.name;
+                nameDisplay.className = 'stopwatch-name';
+                this.container.appendChild(nameDisplay);
+
+                const display = document.createElement('div');
+                display.id = 'display';
+                display.innerHTML = '00:00:00:00';
+                this.container.appendChild(display);
+
+                const controls = document.createElement('div');
+                controls.className = 'stopwatch-controls';
+                const startStopButton = document.createElement('button');
+                startStopButton.innerHTML = 'Start';
+                startStopButton.id = 'startStop';
+                startStopButton.onclick = () => this.startStop(startStopButton);
+                controls.appendChild(startStopButton);
+
+                const resetButton = document.createElement('button');
+                resetButton.innerHTML = 'Reset';
+                resetButton.id = 'reset';
+                resetButton.onclick = () => this.reset();
+                controls.appendChild(resetButton);
+
+                const lapButton = document.createElement('button');
+                lapButton.innerHTML = 'Lap';
+                lapButton.id = 'lap';
+                lapButton.onclick = () => this.recordLap();
+                controls.appendChild(lapButton);
+
+                this.container.appendChild(controls);
+
+                const lapTimesList = document.createElement('ul');
+                lapTimesList.id = 'lapTimes';
+                this.container.appendChild(lapTimesList);
+
+                const totalTimeDisplay = document.createElement('div');
+                totalTimeDisplay.id = 'totalTime';
+                this.container.appendChild(totalTimeDisplay);
+
+                document.getElementById('stopwatches').appendChild(this.container);
+            }
+
+            startStop(btn) {
+                if (!this.isRunning) {
+                    this.timer = setInterval(() => {
+                        this.updateTime();
+                    }, 10);
+                    btn.innerHTML = 'Stop';
+                } else {
+                    clearInterval(this.timer);
+                    btn.innerHTML = 'Start';
+                }
+                this.isRunning = !this.isRunning;
+            }
+
+            reset() {
+                clearInterval(this.timer);
+                this.milliseconds = this.seconds = this.minutes = this.hours = 0;
+                this.updateDisplay();
+                this.isRunning = false;
+                this.container.querySelector('#startStop').innerHTML = 'Start';
+                this.lapTimes = [];
+                this.updateLapTimes();
+                this.updateTotalTime();
+            }
+
+            recordLap() {
+                const formattedTime = this.formatTime(this.hours, this.minutes, this.seconds, this.milliseconds);
+                this.lapTimes.push(formattedTime);
+                this.updateLapTimes();
+                this.reset(); // Reset the stopwatch when lap is recorded
+            }
+
+            updateTime() {
+                this.milliseconds += 10;
+                if (this.milliseconds === 1000) {
+                    this.milliseconds = 0;
+                    this.seconds++;
+                }
+                if (this.seconds === 60) {
+                    this.seconds = 0;
+                    this.minutes++;
+                }
+                if (this.minutes === 60) {
+                    this.minutes = 0;
+                    this.hours++;
+                }
+                this.updateDisplay();
+            }
+
+            updateDisplay() {
+                const formattedTime = this.formatTime(this.hours, this.minutes, this.seconds, this.milliseconds);
+                this.container.querySelector('#display').innerHTML = formattedTime;
+            }
+
+            updateLapTimes() {
+                const lapTimesList = this.container.querySelector('#lapTimes');
+                lapTimesList.innerHTML = '';
+                this.lapTimes.forEach((lapTime, index) => {
+                    const lapItem = document.createElement('li');
+                    lapItem.textContent = `Lap ${index + 1}: ${lapTime}`;
+                    lapTimesList.appendChild(lapItem);
+                });
+                this.updateTotalTime();
+            }
+
+            updateTotalTime() {
+                const totalTimeDisplay = this.container.querySelector('#totalTime');
+                const totalTime = this.calculateTotalTime();
+                totalTimeDisplay.textContent = `Total Time: ${totalTime}`;
+            }
+
+            calculateTotalTime() {
+                let totalMilliseconds = 0;
+                this.lapTimes.forEach(lapTime => {
+                    const [hours, minutes, seconds, milliseconds] = lapTime.split(':').map(Number);
+                    totalMilliseconds += (hours * 3600000) + (minutes * 60000) + (seconds * 1000) + milliseconds;
+                });
+                const totalHours = Math.floor(totalMilliseconds / 3600000);
+                totalMilliseconds %= 3600000;
+                const totalMinutes = Math.floor(totalMilliseconds / 60000);
+                totalMilliseconds %= 60000;
+                const totalSeconds = Math.floor(totalMilliseconds / 1000);
+                const totalMillisecondsRemainder = totalMilliseconds % 1000;
+
+                return this.formatTime(totalHours, totalMinutes, totalSeconds, totalMillisecondsRemainder);
+            }
+
+            formatTime(hours, minutes, seconds, milliseconds) {
+                return (
+                    this.pad(hours) + ':' +
+                    this.pad(minutes) + ':' +
+                    this.pad(seconds) + ':' +
+                    this.pad(Math.floor(milliseconds / 10))
+                );
+            }
+
+            pad(value) {
+                return (value < 10 ? '0' : '') + value;
+            }
+        }
+
+        let stopwatches = [];
+
+        function createStopwatch() {
+            const name = prompt("Enter stopwatch name:");
+            if (!name) return;
+
+            const stopwatch = new Stopwatch(name);
+            stopwatch.create();
+            stopwatches.push(stopwatch);
+        }
+
+        function deleteStopwatch() {
+            if (stopwatches.length > 0) {
+                const lastStopwatch = stopwatches.pop();
+                lastStopwatch.container.remove();
+            }
+        }
+
+        function exportLapTimes() {
+            const allLapTimes = [];
+            stopwatches.forEach(stopwatch => {
+                allLapTimes.push({ name: stopwatch.name, lapTimes: stopwatch.lapTimes });
+            });
+
+            const csvContent = "data:text/csv;charset=utf-8,"
+                + allLapTimes.map(item => item.lapTimes.map(lap => `${item.name},${lap}`).join('\n')).join('\n');
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "lap_times.csv");
+            document.body.appendChild(link);
+
+            link.click();
+        }
+    </script>
+</body>
+</html>
