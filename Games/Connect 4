@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connect 4</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(7, 50px);
+    grid-template-rows: repeat(6, 50px);
+    gap: 2px;
+    border: 2px solid #000;
+    background-color: #4286f4;
+    padding: 2px;
+  }
+  .cell {
+    background-color: #fff;
+    border: 2px solid #000;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+  }
+</style>
+</head>
+<body>
+<div class="board"></div>
+<div id="result"></div>
+<div id="scoreboard">Player: 0 | Bot: 0 | Cat: 0</div>
+<div id="difficulty">
+  <label for="difficulty-select">Select AI Difficulty:</label>
+  <select id="difficulty-select">
+    <option value="easy">Easy</option>
+    <option value="medium">Medium</option>
+    <option value="hard">Hard</option>
+  </select>
+</div>
+<script>
+  const board = document.querySelector('.board');
+  const ROWS = 6;
+  const COLS = 7;
+  let currentPlayer = 1;
+  let grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+  let playerScore = 0;
+  let botScore = 0;
+  let catScore = 0;
+  let aiDifficulty = 'medium'; // Default AI difficulty
+
+  function createCell(row, col) {
+    const cell = document.createElement('div');
+    cell.classList.add('cell');
+    cell.dataset.row = row;
+    cell.dataset.col = col;
+    cell.addEventListener('click', () => {
+      dropPiece(col);
+    });
+    return cell;
+  }
+
+  function renderBoard() {
+    board.innerHTML = '';
+    grid.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
+        const cellElement = createCell(rowIndex, colIndex);
+        if (cell === 1) {
+          cellElement.style.backgroundColor = 'red';
+        } else if (cell === 2) {
+          cellElement.style.backgroundColor = 'yellow';
+        }
+        board.appendChild(cellElement);
+      });
+    });
+  }
+
+  function dropPiece(col) {
+    const row = getLowestEmptyRow(col);
+    if (row !== -1) {
+      grid[row][col] = currentPlayer;
+      renderBoard();
+      if (checkWin(row, col)) {
+        document.getElementById('result').textContent = `Player ${currentPlayer} wins!`;
+        updateScores(currentPlayer);
+        setTimeout(resetGame, 1000); // Reset the game after 1 second
+        return;
+      }
+      if (checkDraw()) {
+        document.getElementById('result').textContent = "It's a draw!";
+        updateScores('cat');
+        setTimeout(resetGame, 1000); // Reset the game after 1 second
+        return;
+      }
+      currentPlayer = currentPlayer === 1 ? 2 : 1;
+      if (currentPlayer === 2) {
+        setTimeout(() => {
+          const aiMove = getAIMove();
+          dropPiece(aiMove);
+        }, 500);
+      }
+    }
+  }
+
+  function getLowestEmptyRow(col) {
+    for (let i = ROWS - 1; i >= 0; i--) {
+      if (grid[i][col] === 0) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  function checkWin(row, col) {
+    const directions = [[1, 0], [0, 1], [1, 1], [-1, 1]];
+    for (const [dx, dy] of directions) {
+      let count = 1;
+      for (let i = 1; i <= 3; i++) {
+        const r = row + i * dx;
+        const c = col + i * dy;
+        if (r >= 0 && r < ROWS && c >= 0 && c < COLS && grid[r][c] === currentPlayer) {
+          count++;
+        } else {
+          break;
+        }
+      }
+      for (let i = 1; i <= 3; i++) {
+        const r = row - i * dx;
+        const c = col - i * dy;
+        if (r >= 0 && r < ROWS && c >= 0 && c < COLS && grid[r][c] === currentPlayer) {
+          count++;
+        } else {
+          break;
+        }
+      }
+      if (count >= 4) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function checkDraw() {
+    return grid.every(row => row.every(cell => cell !== 0));
+  }
+
+  function resetGame() {
+    grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    currentPlayer = 1;
+    renderBoard();
+    document.getElementById('result').textContent = '';
+  }
+
+  function updateScores(winner) {
+    if (winner === 1) {
+      playerScore++;
+    } else if (winner === 2) {
+      botScore++;
+    } else if (winner === 'cat') {
+      catScore++;
+    }
+    document.getElementById('scoreboard').textContent = `Player: ${playerScore} | Bot: ${botScore} | Cat: ${catScore}`;
+  }
+
+  function getAIMove() {
+    // Very basic AI for demonstration purposes
+    const validMoves = [];
+    for (let col = 0; col < COLS; col++) {
+      const row = getLowestEmptyRow(col);
+      if (row !== -1) {
+        validMoves.push(col);
+      }
+    }
+    return validMoves[Math.floor(Math.random() * validMoves.length)];
+  }
+
+  document.getElementById('difficulty-select').addEventListener('change', function() {
+    aiDifficulty = this.value;
+  });
+
+  renderBoard();
+</script>
+</body>
+</html>
